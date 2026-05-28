@@ -1,20 +1,24 @@
 "use client";
 
 import React, { useEffect, useRef, useState } from "react";
-import { motion, useScroll, useTransform } from "framer-motion";
-import Link from "next/link";
-import { ArrowDown } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Terminal, Shield, ArrowRight } from "lucide-react";
 
-export default function Hero() {
+interface HeroProps {
+  onEnter: () => void;
+}
+
+export default function Hero({ onEnter }: HeroProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+  const [isEntering, setIsEntering] = useState(false);
 
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
       if (!containerRef.current) return;
       const { clientWidth, clientHeight } = containerRef.current;
-      const x = (e.clientX / clientWidth - 0.5) * 20; // max shift 20px
-      const y = (e.clientY / clientHeight - 0.5) * 20;
+      const x = (e.clientX / clientWidth - 0.5) * 30; // max shift 30px
+      const y = (e.clientY / clientHeight - 0.5) * 30;
       setMousePosition({ x, y });
     };
 
@@ -22,99 +26,109 @@ export default function Hero() {
     return () => window.removeEventListener("mousemove", handleMouseMove);
   }, []);
 
-  const { scrollY } = useScroll();
-  // slow zoom out based on scroll
-  const imageScale = useTransform(scrollY, [0, 800], [1.1, 1.25]);
-  const contentOpacity = useTransform(scrollY, [0, 500], [1, 0]);
-  const contentY = useTransform(scrollY, [0, 500], [0, 100]);
+  const handleEnterClick = () => {
+    setIsEntering(true);
+    setTimeout(() => {
+      onEnter();
+    }, 1200); // Wait for screen morph animation
+  };
 
   return (
-    <div
+    <motion.div
       ref={containerRef}
-      className="relative w-full h-screen overflow-hidden bg-luxury-black flex items-center justify-center"
+      className="relative w-full h-screen overflow-hidden bg-luxury-black flex items-center justify-center select-none"
+      animate={{
+        scale: isEntering ? 1.1 : 1,
+        filter: isEntering ? "blur(15px)" : "blur(0px)",
+      }}
+      transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
     >
-      {/* Background Cinematic Image Wrapper */}
-      <motion.div
-        className="absolute inset-0 z-0 origin-center bg-cover bg-center bg-no-repeat"
+      {/* Immersive Cinematic Video Background Placeholder (Image + Spotlight) */}
+      <div
+        className="absolute inset-0 z-0 bg-cover bg-center bg-no-repeat opacity-40 scale-105"
         style={{
           backgroundImage: `url('https://images.unsplash.com/photo-1507679799987-c73779587ccf?auto=format&fit=crop&q=80&w=1600')`,
-          scale: imageScale,
-          x: mousePosition.x * -0.5,
-          y: mousePosition.y * -0.5,
+          transform: `translate3d(${mousePosition.x * -0.6}px, ${mousePosition.y * -0.6}px, 0) scale(1.05)`,
+          transition: "transform 0.4s cubic-bezier(0.25, 1, 0.5, 1)",
         }}
       />
 
-      {/* Dark Luxury Cinematic Vignette & Red/Gold lighting reflection */}
-      <div className="absolute inset-0 bg-radial-[circle_at_center,transparent_40%,rgba(13,13,13,0.9)_90%] z-5 pointer-events-none" />
-      <div className="absolute inset-0 bg-gradient-to-t from-luxury-black via-transparent to-luxury-black/70 z-5 pointer-events-none" />
+      {/* Cybernetic High-Tech Grid & Scanner lines */}
+      <div className="absolute inset-0 bg-[radial-gradient(#ffffff03_1px,transparent_1px)] [background-size:24px_24px] pointer-events-none z-5" />
+      <div className="absolute inset-0 bg-gradient-to-t from-luxury-black via-transparent to-luxury-black pointer-events-none z-5" />
       
-      {/* Floating Light Reflection */}
-      <motion.div 
-        className="absolute w-[500px] h-[500px] rounded-full bg-luxury-red/10 blur-[120px] pointer-events-none z-5"
+      {/* Pulsing Cyber Red Spotlight Overlay */}
+      <motion.div
+        className="absolute w-[600px] h-[600px] rounded-full bg-luxury-red/10 blur-[150px] pointer-events-none z-5"
         animate={{
-          x: [mousePosition.x * 2, mousePosition.x * -2],
-          y: [mousePosition.y * 2, mousePosition.y * -2],
+          x: [mousePosition.x * 2.5, mousePosition.x * -2.5],
+          y: [mousePosition.y * 2.5, mousePosition.y * -2.5],
         }}
-        transition={{ type: "spring", damping: 50, stiffness: 20 }}
+        transition={{ type: "spring", damping: 40, stiffness: 20 }}
       />
 
-      {/* Hero Content */}
+      {/* Futuristic Scanner Line */}
       <motion.div
-        className="relative z-10 text-center flex flex-col items-center max-w-4xl px-6 select-none"
-        style={{
-          opacity: contentOpacity,
-          y: contentY,
-        }}
-        initial={{ opacity: 0, scale: 0.95 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 1.5, ease: [0.16, 1, 0.3, 1] }}
-      >
-        {/* Editorial Subtitle top */}
-        <span className="text-[10px] tracking-[0.45em] font-medium text-luxury-gold uppercase mb-6 block drop-shadow-md">
-          A/W EDITORIAL PRESENTATION
+        className="absolute left-0 right-0 h-[1px] bg-luxury-red/40 z-5 shadow-[0_0_10px_#D2143A]"
+        animate={{ top: ["0%", "100%", "0%"] }}
+        transition={{ repeat: Infinity, duration: 8, ease: "linear" }}
+      />
+
+      {/* Interface System Telemetry */}
+      <div className="absolute top-8 left-8 z-10 text-[8px] font-mono tracking-[0.3em] text-luxury-grey hidden sm:flex items-center space-x-3">
+        <Terminal className="w-3 h-3 text-luxury-red" />
+        <span>SYS_LOADED // AUTH: OK</span>
+      </div>
+
+      <div className="absolute top-8 right-8 z-10 text-[8px] font-mono tracking-[0.3em] text-luxury-grey hidden sm:flex items-center space-x-3">
+        <Shield className="w-3 h-3 text-luxury-silver" />
+        <span>ENCRYPTED CONNECTION [TLS_1.3]</span>
+      </div>
+
+      {/* Hero Core Content */}
+      <div className="relative z-10 text-center flex flex-col items-center max-w-4xl px-6">
+        
+        {/* Editorial caption */}
+        <span className="text-[9px] tracking-[0.5em] font-bold text-luxury-red uppercase mb-8 block font-mono">
+          FUTURISTIC LUXURY OPERATING SYSTEM
         </span>
 
-        {/* Massive Logo */}
-        <h1 className="font-serif-luxury text-6xl md:text-8xl lg:text-[110px] font-bold tracking-[0.25em] text-luxury-white leading-none relative">
+        {/* Giant Wide Syne Typography */}
+        <h1 className="font-serif-luxury text-6xl md:text-8xl lg:text-[130px] font-extrabold tracking-[0.15em] text-luxury-white leading-none relative">
           RIGHT NOW
-          {/* Subtle logo reflection shadow */}
-          <span className="absolute left-0 right-0 -bottom-8 font-serif-luxury text-6xl md:text-8xl lg:text-[110px] font-bold tracking-[0.25em] text-luxury-white/5 leading-none select-none blur-[2px] transform scale-y-[-0.3]">
+          {/* Subtle metal shadow */}
+          <span className="absolute left-0 right-0 -bottom-8 font-serif-luxury text-6xl md:text-8xl lg:text-[130px] font-extrabold tracking-[0.15em] text-luxury-red/5 leading-none select-none blur-[4px] transform scale-y-[-0.3] pointer-events-none">
             RIGHT NOW
           </span>
         </h1>
 
-        {/* Small subtitle underneath */}
-        <p className="text-[11px] md:text-xs tracking-[0.3em] text-luxury-light-grey uppercase mt-12 mb-16 font-light leading-relaxed max-w-md">
-          Modern Menswear For The Present Generation
+        {/* Subtitle */}
+        <p className="text-xs tracking-[0.4em] text-luxury-silver uppercase mt-16 mb-20 font-light leading-relaxed max-w-md font-mono">
+          “Built For Presence”
         </p>
 
-        {/* Action Buttons */}
-        <div className="flex flex-col sm:flex-row items-center justify-center gap-6 sm:gap-8 w-full">
-          <Link href="/shop" className="w-full sm:w-auto">
-            <button className="group relative w-full sm:w-56 py-4.5 px-8 bg-luxury-white text-luxury-black font-semibold text-[10px] tracking-[0.3em] overflow-hidden transition-all duration-500 hover:text-luxury-white active:scale-95 cursor-none">
-              <span className="absolute inset-0 bg-luxury-red transform scale-x-0 group-hover:scale-x-100 origin-left transition-transform duration-500 ease-[0.16,1,0.3,1]" />
-              <span className="relative z-10">SHOP NOW</span>
-            </button>
-          </Link>
+        {/* High-tech morphing button */}
+        <button
+          onClick={handleEnterClick}
+          disabled={isEntering}
+          className="group relative py-5 px-14 border border-luxury-red/40 hover:border-luxury-red transition-colors duration-500 overflow-hidden cursor-none"
+        >
+          {/* Laser edge glow */}
+          <div className="absolute inset-0 bg-gradient-to-r from-luxury-red/0 via-luxury-red/20 to-luxury-red/0 transform -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
           
-          <Link href="#collections" className="w-full sm:w-auto">
-            <button className="group relative w-full sm:w-56 py-4.5 px-8 glassmorphism text-luxury-white border border-luxury-white/20 font-semibold text-[10px] tracking-[0.3em] overflow-hidden transition-all duration-500 hover:border-luxury-gold active:scale-95 cursor-none">
-              <span className="absolute inset-0 bg-luxury-gold transform scale-x-0 group-hover:scale-x-100 origin-right transition-transform duration-500 ease-[0.16,1,0.3,1]" />
-              <span className="relative z-10 group-hover:text-luxury-black transition-colors duration-500">EXPLORE COLLECTION</span>
-            </button>
-          </Link>
-        </div>
-      </motion.div>
+          <span className="relative z-10 text-[10px] tracking-[0.45em] font-bold text-luxury-white group-hover:text-luxury-red transition-colors duration-500 font-mono flex items-center space-x-3">
+            <span>{isEntering ? "CONNECTING..." : "ENTER SYSTEM"}</span>
+            {!isEntering && <ArrowRight className="w-4 h-4 text-luxury-red animate-pulse" />}
+          </span>
+        </button>
 
-      {/* Floating Scroll Indicator */}
-      <motion.div
-        className="absolute bottom-10 left-1/2 -translate-x-1/2 z-10 flex flex-col items-center space-y-2 pointer-events-none"
-        animate={{ y: [0, 8, 0] }}
-        transition={{ repeat: Infinity, duration: 2, ease: "easeInOut" }}
-      >
-        <span className="text-[8px] tracking-[0.4em] text-luxury-grey font-medium uppercase">SCROLL</span>
-        <ArrowDown className="w-3.5 h-3.5 text-luxury-gold" />
-      </motion.div>
-    </div>
+      </div>
+
+      {/* Grid footer info */}
+      <div className="absolute bottom-8 left-8 right-8 z-10 flex justify-between items-center text-[7px] font-mono tracking-[0.3em] text-luxury-grey">
+        <span>PRODUCT DATA MODEL: V2.8</span>
+        <span>LATENCY: 12ms</span>
+      </div>
+    </motion.div>
   );
 }

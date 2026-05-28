@@ -1,25 +1,24 @@
 import type { Metadata } from "next";
-import { Cormorant_Garamond, Outfit } from "next/font/google";
+import { Syne, Space_Grotesk } from "next/font/google";
 import CustomCursor from "@/components/CustomCursor";
 import { AppProvider } from "@/context/AppContext";
 import "./globals.css";
 
-const cormorant = Cormorant_Garamond({
+const syne = Syne({
   subsets: ["latin"],
-  weight: ["300", "400", "500", "600", "700"],
-  style: ["normal", "italic"],
-  variable: "--font-cormorant",
+  weight: ["400", "500", "600", "700", "800"],
+  variable: "--font-syne",
 });
 
-const outfit = Outfit({
+const spaceGrotesk = Space_Grotesk({
   subsets: ["latin"],
-  weight: ["200", "300", "400", "500", "600", "700"],
-  variable: "--font-outfit",
+  weight: ["300", "400", "500", "600", "700"],
+  variable: "--font-space-grotesk",
 });
 
 export const metadata: Metadata = {
-  title: "RIGHT NOW | Modern Luxury Menswear",
-  description: "Crafted for modern movement. Minimal fashion with maximum presence. Presenting the luxury autumn/winter campaign.",
+  title: "RIGHT NOW | Futuristic Luxury Menswear System",
+  description: "Operating System for high-end menswear. Built for Presence. Presenting the A/W cyber campaign.",
 };
 
 export default function RootLayout({
@@ -30,11 +29,11 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${cormorant.variable} ${outfit.variable} h-full antialiased`}
+      className={`${syne.variable} ${spaceGrotesk.variable} h-full antialiased`}
     >
-      <body className="custom-cursor-active min-h-full flex flex-col bg-luxury-black text-luxury-white relative selection:bg-luxury-gold selection:text-luxury-black">
+      <body className="custom-cursor-active min-h-full flex flex-col bg-luxury-black text-luxury-white relative selection:bg-luxury-red selection:text-luxury-black">
         <AppProvider>
-          {/* Grain Noise Overlay */}
+          {/* Film Grain Noise Overlay */}
           <div className="grain-overlay" />
           
           {/* Interactive Custom Cursor */}
